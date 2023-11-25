@@ -1,0 +1,49 @@
+@page "/admin/{Id}"
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Detalle de la aplicacion</h3>
+                </div>
+                <div class="card-body">
+                    <p><strong>Cedula:</strong> @aplicacion.Recomendado.Cedula </p>
+                    <p><strong>Nombre:</strong> @aplicacion.Recomendado.Nombre </p>
+                    <p><strong>Apellido:</strong> @aplicacion.Recomendado.Apellido </p>
+                    <p><strong>Telefono:</strong> @aplicacion.Recomendado.Telefono </p>
+                    <p><strong>Edad:</strong> @aplicacion.Recomendado.FechaNacimiento </p>
+                    <p><strong>Motivo:</strong> @aplicacion.Motivo </p>
+                    <h4>Referidos</h4>
+                    <ul>
+                        @foreach (var referencia in aplicacion.Referencia.Where(x => x.Nombre.Length > 3))
+                        {
+                            <li>@referencia.Nombre</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string Id {get; set;} = "No ahi id";
+
+    Aplicacion aplicacion = new Aplicacion();
+
+    protected override void OnInitialized()
+    {
+        if (Directory.Exists("datosx"))
+        {
+            if(File.Exists("datosx/" + Id + ".json"))
+            {
+                string json = File.ReadAllText("datosx/" + Id + ".json");
+                aplicacion =  Newtonsoft.Json.JsonConvert.DeserializeObject<Aplicacion>(json);
+            }
+        }
+
+        
+    }
+}

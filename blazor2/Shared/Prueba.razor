@@ -1,0 +1,58 @@
+<div class="row">
+    <div class="col col-md-3">
+        <label> 
+            Cedula<button @onclick="valida" ype="submit" class="btn btn-primary">
+            <i class="fa fa-search"></i>Validar</button>
+        </label>
+        <input type="text" @bind-value="Modelo.Cedula" />
+        @if(mensajeErrorCedula !="") {
+        <div class="alert alert-danger" role="alert">
+            @mensajeErrorCedula
+        </div>
+        }
+    </div> 
+    <div class="col col-md-3">
+        <label>Nombre</label>
+        <input type="text" @bind-value= "Modelo.Nombre">
+    </div>
+        <div class="col col-md-3">
+        <label>Apellido</label>
+        <input type="text" @bind-value= "Modelo.Apellido">
+    </div>
+        <div class="col col-md-3">
+        <label>Telefono</label>
+        <input type="text" @bind-value= "Modelo.Telefono">
+    </div> 
+</div>
+
+@code {
+    
+    string mensajeErrorCedula = "";
+    async Task valida(){
+        
+        if(Modelo.Cedula.Length != 11) {
+            mensajeErrorCedula = "La cedula debe tener 11 digitos actualmente tiene " +Modelo.Cedula.Length;
+            return;
+        }
+        Console.WriteLine("Validando la cedula");
+
+        var url = "https://api.adamix.net/apec/cedula/" +Modelo.Cedula; 
+        var http = new HttpClient();
+
+        var respuesta = await http.GetAsync(url);
+
+            var json = await respuesta.Content.ReadAsStringAsync();
+            var recomendado = Newtonsoft.Json.JsonConvert.DeserializeObject<RecomendadoJce> (json);
+                if (recomendado.ok) {
+                    Modelo.Nombre = recomendado.Nombres;
+                    Modelo.Apellido = recomendado.Apellido1 + " " +recomendado.Apellido2;
+
+                    StateHasChanged();
+                } else {
+                    mensajeErrorCedula = "Error la cedula no fue encontrada";
+                }
+
+    }
+    [Parameter]
+    public Recomendado Modelo {get; set;} = new Recomendado();
+}

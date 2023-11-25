@@ -1,0 +1,64 @@
+@page "/admin"
+@inject NavigationManager Nav
+
+<h3>Listado de envios</h3>
+Existen @envios.Count
+
+<table class="table table-striped"> 
+    <thead>
+        <tr>
+            <th>Fecha</th>
+            <th>Solicitante</th>
+            <th>Referido</th>
+            <th>Detalle</th>
+        </tr>
+    </thead>
+    <tbody>
+      @foreach(var envio in envios)
+      {
+        <tr>
+            <td>@envio.fecha</td>
+            <td> @envio.Recomendado.Nombre @envio.Recomendado.Apellido</td>
+            <td>@envio.Referencia.Where(x => x.Nombre.Length > 3).Count()</td>
+            <td> 
+                <button class="btn btn-primary" @onclick ="()=>navegar(envio.Id)">
+                    <i class="oi oi-eye"></i>
+                Ver detalle </button>
+            </td>
+        </tr>
+      }
+    </tbody>
+
+</table>
+
+@code
+{
+    List<Aplicacion> envios = new List<Aplicacion>();
+
+    void navegar (string id)
+    {
+        Nav.NavigateTo($"/admin/{id}");
+    } 
+
+    protected override async Task OnInitializedAsync() 
+    {
+        await base.OnInitializedAsync();
+
+        if (!Directory.Exists("datosx"))
+        {
+            return;
+        }
+
+        var files = Directory.GetFiles("datosx");
+
+        foreach (var file in files)
+        {
+            var Content = await File.ReadAllTextAsync(file);
+            var envio = Newtonsoft.Json.JsonConvert.DeserializeObject<Aplicacion>(Content);
+                envios.Add(envio);
+        }
+
+
+    }
+
+}
